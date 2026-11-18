@@ -1,0 +1,32 @@
+{
+  "seed": 42,
+  "transactions": 14864,
+  "suspicious_labelled": 240,
+  "patterns": {
+    "high_velocity": 100,
+    "rapid_movement": 39,
+    "structuring": 37,
+    "smurfing": 25,
+    "circular": 20,
+    "dormant_reactivation": 19
+  },
+  "accounts": 462,
+  "featured_ring": {
+    "controller": "AC4003294304",
+    "alias": "AC4003302223",
+    "shells": [
+      "AC4003310142",
+      "AC4003318061",
+      "AC4003325980",
+      "AC4003333899"
+    ]
+  },
+  "files": [
+    "synthetic_transactions.csv",
+    "synthetic_transactions.json",
+    "synthetic_transactions_q4.xlsx",
+    "messy_bank_export.csv",
+    "messy_bank_export.xlsx"
+  ],
+  "note": "Synthetic data. is_fraud/fraud_pattern are ground-truth labels for evaluation only."
+}

@@ -1,0 +1,53 @@
+name: fraudlens
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-fraudlens}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-fraudlens}
+      POSTGRES_DB: ${POSTGRES_DB:-fraudlens}
+    ports:
+      - "${FL_DB_PORT:-5440}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./scripts/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-fraudlens}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: ./backend
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      FL_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-fraudlens}:${POSTGRES_PASSWORD:-fraudlens}@db:5432/${POSTGRES_DB:-fraudlens}
+      FL_STORAGE_DIR: /data/storage
+      FL_DATASETS_DIR: /app/datasets
+      FL_CORS_ORIGINS: '["http://localhost:${FL_WEB_PORT:-5180}"]'
+      FL_ENV: ${FL_ENV:-development}
+      FL_SEED_DEMO: ${FL_SEED_DEMO:-true}
+    volumes:
+      - storage:/data/storage
+      - ./datasets:/app/datasets:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${FL_API_PORT:-8100}:8000"
+
+  web:
+    build:
+      context: ./frontend
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${FL_WEB_PORT:-5180}:80"
+
+volumes:
+  pgdata:
+  storage:
